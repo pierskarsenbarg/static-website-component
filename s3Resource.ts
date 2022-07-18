@@ -22,6 +22,14 @@ export class s3Resource extends pulumi.ComponentResource {
             }
         }, {...opts, parent: this});
 
+        const bucketBlock = new aws.s3.BucketPublicAccessBlock("bucketBlock", {
+            blockPublicAcls: false,
+            blockPublicPolicy: false,
+            bucket: bucket.bucket,
+            ignorePublicAcls: false,
+            restrictPublicBuckets: false,
+        });
+
         const bucketPolicyDocument = (bucketName: string) : aws.iam.PolicyDocument => {
             return {
                 Version: "2012-10-17",
@@ -38,7 +46,7 @@ export class s3Resource extends pulumi.ComponentResource {
 
         const bucketPolicy = new aws.s3.BucketPolicy("bucketPolicy", {
             bucket: bucket.bucket,
-            policy: bucket.bucket.apply(bucketPolicyDocument)
+            policy: bucket.bucket.apply(bucketPolicyDocument),
         }, {parent: this})
 
         this.bucketName = bucket.bucket;
